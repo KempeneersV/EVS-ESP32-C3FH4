@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Internal Area</title>
+
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 20px;
+        padding: 10px;
+        background-color: #f4f4f4;
+        color: #333;
+        text-align: center;
+      }
+
+      .container_wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap; 
+        justify-content: center;
+      }
+
+      .container {
+        border: 1px solid #000;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 10px;
+        width: 13em;
+        height: 4em;
+      }
+
+      .title_container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .button {
+        padding: 0px 20px;
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        height: 30px;
+      }
+
+      .state {
+        margin-top: 10px;
+        text-align: start;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>Server management</h1>
+
+    <div class="container_wrapper">
+
+      <!-- Repeat the following block for each server -->
+      <div id="server1" class="container">
+        <div class="title_container">
+          <div class="title">Server n°1</div>
+          <button class="button" onclick="switchPowerState(1)">Power</button>
+        </div>
+        <div id="state1" class="state">State : OFF</div>
+      </div>
+
+      <div id="server2" class="container">
+        <div class="title_container">
+          <div class="title">Server n°2</div>
+          <button class="button" onclick="switchPowerState(2)">Power</button>
+        </div>
+        <div id="state2" class="state">State : OFF</div>
+      </div>
+
+      <div id="server3" class="container">
+        <div class="title_container">
+          <div class="title">Server n°3</div>
+          <button class="button" onclick="switchPowerState(3)">Power</button>
+        </div>
+        <div id="state3" class="state">State : OFF</div>
+      </div>
+
+      <div id="server4" class="container">
+        <div class="title_container">
+          <div class="title">Server n°4</div>
+          <button class="button" onclick="switchPowerState(4)">Power</button>
+        </div>
+        <div id="state4" class="state">State : OFF</div>
+      </div>
+
+      <div id="server5" class="container">
+        <div class="title_container">
+          <div class="title">Server n°5</div>
+          <button class="button" onclick="switchPowerState(5)">Power</button>
+        </div>
+        <div id="state5" class="state">State : OFF</div>
+      </div>
+
+      <div id="server6" class="container">
+        <div class="title_container">
+          <div class="title">Server n°6</div>
+          <button class="button" onclick="switchPowerState(6)">Power</button>
+        </div>
+        <div id="state6" class="state">State : OFF</div>
+      </div>
+
+      <div id="server7" class="container">
+        <div class="title_container">
+          <div class="title">Server n°7</div>
+          <button class="button" onclick="switchPowerState(7)">Power</button>
+        </div>
+        <div id="state7" class="state">State : OFF</div>
+      </div>
+
+      <div id="server8" class="container">
+        <div class="title_container">
+          <div class="title">Server n°8</div>
+          <button class="button" onclick="switchPowerState(8)">Power</button>
+        </div>
+        <div id="state8" class="state">State : OFF</div>
+      </div>
+
+    </div>
+
+    <script>
+      // Initialize serverStates with all servers OFF
+      var serverStates = [0, 0, 0, 0, 0, 0, 0, 0];
+
+      function switchPowerState(serverNumber) {
+        var confirmation = window.confirm('Are you sure you want to switch the power state?');
+        
+        if (confirmation) {
+          // Toggle the state of the selected server
+          serverStates[serverNumber - 1] = 1 - serverStates[serverNumber - 1];
+
+          // Get the state element corresponding to the server
+          var stateElement = document.getElementById('state' + serverNumber);
+
+          // Update the UI based on the new state
+          stateElement.textContent = 'State: ' + (serverStates[serverNumber - 1] ? 'ON' : 'OFF');
+
+          // Log the updated serverStates array to the console
+          console.log('Server States:', serverStates);
+        }
+      }
+
+      async function sendServerStates() {
+    const payload = { serverStates };
+    console.log('Sending server states:', JSON.stringify(payload));
+    try {
+        const response = await fetch('/postServerStates', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Response from server:', result);
+
+            // Vérifiez le message de retour
+            if (result && result.message === "Data received successfully") {
+                // Le message est celui attendu, exécutez switchPowerState
+                switchPowerState(serverNumber);
+            } else {
+                console.error('Unexpected response message:', result.message);
+            }
+        } else {
+            console.error('Error:', response.statusText);
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+    document.getElementById('server1').addEventListener('click', sendServerStates);
+    document.getElementById('server2').addEventListener('click', sendServerStates);
+    document.getElementById('server3').addEventListener('click', sendServerStates);
+    document.getElementById('server4').addEventListener('click', sendServerStates);
+    document.getElementById('server5').addEventListener('click', sendServerStates);
+    document.getElementById('server6').addEventListener('click', sendServerStates);
+    document.getElementById('server7').addEventListener('click', sendServerStates);
+    document.getElementById('server8').addEventListener('click', sendServerStates);
+    </script>
+  </body>
+</html>
