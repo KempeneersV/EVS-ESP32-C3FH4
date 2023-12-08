@@ -8,6 +8,10 @@
 #include "cert.h"
 #include "private_key.h"
 
+// Include ArduinoJson library
+#include <ArduinoJson.h>
+
+
 // For ESP32_SC_W5500
 #define DEBUG_ETHERNET_WEBSERVER_PORT       Serial
 
@@ -100,6 +104,9 @@ SSLCert cert = SSLCert(
 // Create an SSL-enabled server that uses the certificate
 // The contstructor takes some more parameters, but we go for default values here.
 HTTPSServer secureServer = HTTPSServer(&cert);
+
+// Declare server states array
+int serverStatesStorage[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 //////////////////////////////////////////////////
 
@@ -321,7 +328,7 @@ void handleRoot(HTTPRequest * req, HTTPResponse * res)
 }
 
 // Handles incoming POST requests containing server state data.
-void handleServerStates(HTTPRequest *req, HTTPResponse *res) {
+void handlePostServerStates(HTTPRequest *req, HTTPResponse *res) {
   Serial.println("POST request received");
 
   // Get the content length of the request
@@ -381,6 +388,29 @@ void handleServerStates(HTTPRequest *req, HTTPResponse *res) {
     res->setHeader("Content-Type", "application/json");
     res->println("{\"message\": \"No Data received\"}");
   }
+}
+
+// Handles incoming GET requests to retrieve server states.
+void handleGetServerStates(HTTPRequest *req, HTTPResponse *res) {
+  Serial.println("GET request for server states received");
+
+  // Create a JSON object to hold server states
+  DynamicJsonDocument jsonDocument(1024); // Adjust the size as needed
+
+  for (int i = 0; i < 8; i++) {
+    jsonDocument[String("server") + i] = serverStatesStorage[i];
+  }
+
+  // Serialize JSON to a string
+  String jsonString;
+  serializeJson(jsonDocument, jsonString);
+
+  // Set response headers
+  res->setHeader("Content-Type", "application/json");
+  res->setHeader("Cache-Control", "no-cache");
+
+  // Send the server states as a JSON response
+  res->println(jsonString);
 }
 
 
@@ -457,12 +487,16 @@ void setup()
   ResourceNode * node404      = new ResourceNode("", "GET", &handle404);
 
   // POST
-  ResourceNode * nodeState = new ResourceNode("/postServerStates", "POST", &handleServerStates);
+  ResourceNode * nodeState = new ResourceNode("/postServerStates", "POST", &handlePostServerStates);
   
+  // GET
+  ResourceNode *nodeGetStates = new ResourceNode("/getServerStates", "GET", &handleGetServerStates);
+
   // Add the nodes to the server
   secureServer.registerNode(nodeRoot);
   secureServer.registerNode(nodeAdmin);
   secureServer.registerNode(nodeState);
+  secureServer.registerNode(nodeGetStates);
   // Add the 404 not found node to the server.
   // The path is ignored for the default node.
   secureServer.setDefaultNode(node404);
