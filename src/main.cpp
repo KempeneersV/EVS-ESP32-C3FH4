@@ -58,6 +58,9 @@
 // Enter a MAC address and IP address for your controller below.
 #define NUMBER_OF_MAC      20
 
+// Store server sates
+uint8_t backupServerStates = 0; 
+
 byte mac[][NUMBER_OF_MAC] =
 {
   { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x01 },
@@ -105,9 +108,6 @@ SSLCert cert = SSLCert(
 // The contstructor takes some more parameters, but we go for default values here.
 HTTPSServer secureServer = HTTPSServer(&cert);
 
-// Declare server states array
-int serverStatesStorage[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-
 //////////////////////////////////////////////////
 
 void blinkLED(int numBlinks, int blinkDuration = 1000) {
@@ -136,7 +136,8 @@ bool writeToPCF8574AN(uint8_t state) {
     // Erreur lors de la transmission
     Serial.print("Erreur de transmission. Code d'erreur : ");
     Serial.println(result);
-    return false;
+    // return false;
+    return true; // for debug
   }
 }
 
@@ -375,6 +376,9 @@ void handlePostServerStates(HTTPRequest *req, HTTPResponse *res) {
 
     // Send the processed data to the PCF8574AN and handle the response
     if (writeToPCF8574AN(serverStates)) {
+      // Save the serverStates value (backup)
+      backupServerStates = serverStates;
+      Serial.println(backupServerStates, BIN);
       Serial.println("Data sent to PCF8574AN");
       res->setHeader("Content-Type", "application/json");
       res->println("{\"message\": \"Data received successfully\"}");
@@ -396,14 +400,37 @@ void handleGetServerStates(HTTPRequest *req, HTTPResponse *res) {
 
   // Create a JSON object to hold server states
   DynamicJsonDocument jsonDocument(1024); // Adjust the size as needed
+  JsonArray serverStatesArray = jsonDocument.createNestedArray("serverStates");
 
-  for (int i = 0; i < 8; i++) {
-    jsonDocument[String("server") + i] = serverStatesStorage[i];
+  // Allocate memory for buffer_int
+  int *buffer_int = new int[8]; 
+
+  for (int i = 7; i >= 0; i--) {
+      buffer_int[i] = (backupServerStates >> (7 - i)) & 1;
   }
+
+  // Populate serverStatesArray with data from buffer_int and calculate backupServerStates
+  Serial.println("Buffer_int values:");
+  for (int i = 0; i < 8; i++) {
+    serverStatesArray.add(buffer_int[i]);
+
+    // Debug print each value of buffer_int
+    Serial.print("buffer_int[");
+    Serial.print(i);
+    Serial.print("]: ");
+    Serial.println(buffer_int[i]);
+  }
+  
+  // Free allocated memory for buffer_int
+  delete[] buffer_int;
 
   // Serialize JSON to a string
   String jsonString;
   serializeJson(jsonDocument, jsonString);
+
+  // Debug print the JSON string
+  Serial.print("JSON Response: ");
+  Serial.println(jsonString);
 
   // Set response headers
   res->setHeader("Content-Type", "application/json");
@@ -484,13 +511,12 @@ void setup()
   // GET
   ResourceNode * nodeRoot     = new ResourceNode("/", "GET", &handleRoot);
   ResourceNode * nodeAdmin    = new ResourceNode("/admin", "GET", &handleAdminPage);
+    ResourceNode *nodeGetStates = new ResourceNode("/getServerStates", "GET", &handleGetServerStates);
   ResourceNode * node404      = new ResourceNode("", "GET", &handle404);
 
   // POST
   ResourceNode * nodeState = new ResourceNode("/postServerStates", "POST", &handlePostServerStates);
-  
-  // GET
-  ResourceNode *nodeGetStates = new ResourceNode("/getServerStates", "GET", &handleGetServerStates);
+
 
   // Add the nodes to the server
   secureServer.registerNode(nodeRoot);

@@ -137,23 +137,30 @@
       // Initialize serverStates with all servers OFF
       var serverStates = [0, 0, 0, 0, 0, 0, 0, 0];
 
-      // Fetch initial server states from the backend
       async function fetchInitialServerStates() {
         try {
           const response = await fetch('/getServerStates');
           if (response.ok) {
             const result = await response.json();
-            console.log('Initial Server States:', result.serverStates);
-            // Update the UI based on the initial server states
-            serverStates = result.serverStates;
-            updateUI();
+
+            if (result && result.serverStates) {
+              console.log('Initial Server States:', result.serverStates);
+              serverStates = result.serverStates;
+              updateUI();
+            } else {
+              console.error('Invalid response format - serverStates not found:', result);
+            }
           } else {
             console.error('Error fetching initial server states:', response.statusText);
+            const responseBody = await response.text();
+            console.log('Response Body:', responseBody);
           }
         } catch (error) {
           console.error('An error occurred while fetching initial server states:', error);
         }
       }
+
+
 
       // Update the UI based on the current server states
       function updateUI() {
@@ -208,9 +215,6 @@
 
                 // Vérifiez le message de retour
                 if (result && result.message === "Data received successfully") {
-                    // Le message est celui attendu, exécutez switchPowerState
-                    switchPowerState(serverNumber);
-                    // Retournez true pour indiquer le succès
                     return true;
                 } else {
                     console.error('Unexpected response message:', result.message);
@@ -225,15 +229,6 @@
         // Retournez false en cas d'échec
         return false;
       }
-
-      // document.getElementById('server1').addEventListener('click', sendServerStates);
-      // document.getElementById('server2').addEventListener('click', sendServerStates);
-      // document.getElementById('server3').addEventListener('click', sendServerStates);
-      // document.getElementById('server4').addEventListener('click', sendServerStates);
-      // document.getElementById('server5').addEventListener('click', sendServerStates);
-      // document.getElementById('server6').addEventListener('click', sendServerStates);
-      // document.getElementById('server7').addEventListener('click', sendServerStates);
-      // document.getElementById('server8').addEventListener('click', sendServerStates);
     </script>
   </body>
 </html>
