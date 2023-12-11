@@ -6,6 +6,10 @@
     <title>Internal Area</title>
 
     <style>
+      .hidden {
+        display: none;
+      }
+
       body {
         font-family: "Arial", sans-serif;
         margin: 20px;
@@ -18,7 +22,7 @@
       .container_wrapper {
         display: flex;
         flex-direction: row;
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
         justify-content: center;
       }
 
@@ -58,79 +62,78 @@
         margin-top: 10px;
         text-align: start;
       }
-
     </style>
   </head>
   <body>
-    <h1>Server management</h1>
+    <div id="pageContent" class="hidden">
+      <h1>Server management</h1>
 
-    <div class="container_wrapper">
-
-      <!-- Repeat the following block for each server -->
-      <div id="server1" class="container">
-        <div class="title_container">
-          <div class="title">Server n°1</div>
-          <button class="button" onclick="switchPowerState(1)">Power</button>
+      <div class="container_wrapper">
+        <!-- Repeat the following block for each server -->
+        <div id="server1" class="container">
+          <div class="title_container">
+            <div class="title">Server n°1</div>
+            <button class="button" onclick="switchPowerState(1)">Power</button>
+          </div>
+          <div id="state1" class="state">State : OFF</div>
         </div>
-        <div id="state1" class="state">State : OFF</div>
-      </div>
 
-      <div id="server2" class="container">
-        <div class="title_container">
-          <div class="title">Server n°2</div>
-          <button class="button" onclick="switchPowerState(2)">Power</button>
+        <div id="server2" class="container">
+          <div class="title_container">
+            <div class="title">Server n°2</div>
+            <button class="button" onclick="switchPowerState(2)">Power</button>
+          </div>
+          <div id="state2" class="state">State : OFF</div>
         </div>
-        <div id="state2" class="state">State : OFF</div>
-      </div>
 
-      <div id="server3" class="container">
-        <div class="title_container">
-          <div class="title">Server n°3</div>
-          <button class="button" onclick="switchPowerState(3)">Power</button>
+        <div id="server3" class="container">
+          <div class="title_container">
+            <div class="title">Server n°3</div>
+            <button class="button" onclick="switchPowerState(3)">Power</button>
+          </div>
+          <div id="state3" class="state">State : OFF</div>
         </div>
-        <div id="state3" class="state">State : OFF</div>
-      </div>
 
-      <div id="server4" class="container">
-        <div class="title_container">
-          <div class="title">Server n°4</div>
-          <button class="button" onclick="switchPowerState(4)">Power</button>
+        <div id="server4" class="container">
+          <div class="title_container">
+            <div class="title">Server n°4</div>
+            <button class="button" onclick="switchPowerState(4)">Power</button>
+          </div>
+          <div id="state4" class="state">State : OFF</div>
         </div>
-        <div id="state4" class="state">State : OFF</div>
-      </div>
 
-      <div id="server5" class="container">
-        <div class="title_container">
-          <div class="title">Server n°5</div>
-          <button class="button" onclick="switchPowerState(5)">Power</button>
+        <div id="server5" class="container">
+          <div class="title_container">
+            <div class="title">Server n°5</div>
+            <button class="button" onclick="switchPowerState(5)">Power</button>
+          </div>
+          <div id="state5" class="state">State : OFF</div>
         </div>
-        <div id="state5" class="state">State : OFF</div>
-      </div>
 
-      <div id="server6" class="container">
-        <div class="title_container">
-          <div class="title">Server n°6</div>
-          <button class="button" onclick="switchPowerState(6)">Power</button>
+        <div id="server6" class="container">
+          <div class="title_container">
+            <div class="title">Server n°6</div>
+            <button class="button" onclick="switchPowerState(6)">Power</button>
+          </div>
+          <div id="state6" class="state">State : OFF</div>
         </div>
-        <div id="state6" class="state">State : OFF</div>
-      </div>
 
-      <div id="server7" class="container">
-        <div class="title_container">
-          <div class="title">Server n°7</div>
-          <button class="button" onclick="switchPowerState(7)">Power</button>
+        <div id="server7" class="container">
+          <div class="title_container">
+            <div class="title">Server n°7</div>
+            <button class="button" onclick="switchPowerState(7)">Power</button>
+          </div>
+          <div id="state7" class="state">State : OFF</div>
         </div>
-        <div id="state7" class="state">State : OFF</div>
-      </div>
 
-      <div id="server8" class="container">
-        <div class="title_container">
-          <div class="title">Server n°8</div>
-          <button class="button" onclick="switchPowerState(8)">Power</button>
+        <div id="server8" class="container">
+          <div class="title_container">
+            <div class="title">Server n°8</div>
+            <button class="button" onclick="switchPowerState(8)">Power</button>
+          </div>
+          <div id="state8" class="state">State : OFF</div>
         </div>
-        <div id="state8" class="state">State : OFF</div>
       </div>
-
     </div>
 
     <script>
@@ -139,59 +142,75 @@
 
       async function fetchInitialServerStates() {
         try {
-          const response = await fetch('/getServerStates');
+          const response = await fetch("/getServerStates");
           if (response.ok) {
             const result = await response.json();
 
             if (result && result.serverStates) {
-              console.log('Initial Server States:', result.serverStates);
+              console.log("Initial Server States:", result.serverStates);
               serverStates = result.serverStates;
               updateUI();
             } else {
-              console.error('Invalid response format - serverStates not found:', result);
+              console.error(
+                "Invalid response format - serverStates not found:",
+                result
+              );
             }
           } else {
-            console.error('Error fetching initial server states:', response.statusText);
+            console.error(
+              "Error fetching initial server states:",
+              response.statusText
+            );
             const responseBody = await response.text();
-            console.log('Response Body:', responseBody);
+            console.log("Response Body:", responseBody);
           }
         } catch (error) {
-          console.error('An error occurred while fetching initial server states:', error);
+          console.error(
+            "An error occurred while fetching initial server states:",
+            error
+          );
         }
       }
-
-
 
       // Update the UI based on the current server states
       function updateUI() {
         for (let i = 1; i <= 8; i++) {
-          const stateElement = document.getElementById('state' + i);
-          stateElement.textContent = 'State: ' + (serverStates[i - 1] ? 'ON' : 'OFF');
+          const stateElement = document.getElementById("state" + i);
+          stateElement.textContent =
+            "State: " + (serverStates[i - 1] ? "ON" : "OFF");
         }
       }
 
       // Switch power state function remains unchanged
 
       // Initial fetch on page load
-      window.addEventListener('load', fetchInitialServerStates);
+      window.addEventListener("load", fetchInitialServerStates);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Page is fully loaded
+        var pageContent = document.getElementById("pageContent");
+        pageContent.classList.remove("hidden");
+      });
 
       function switchPowerState(serverNumber) {
-        var confirmation = window.confirm('Are you sure you want to switch the power state?');
-        
+        var confirmation = window.confirm(
+          "Are you sure you want to switch the power state?"
+        );
+
         if (confirmation) {
           previousStates = serverStates;
           serverStates[serverNumber - 1] = 1 - serverStates[serverNumber - 1];
-          if(sendServerStates()) {
+          if (sendServerStates()) {
             // Get the state element corresponding to the server
-            var stateElement = document.getElementById('state' + serverNumber);
+            var stateElement = document.getElementById("state" + serverNumber);
 
             // Update the UI based on the new state
-            stateElement.textContent = 'State: ' + (serverStates[serverNumber - 1] ? 'ON' : 'OFF');
+            stateElement.textContent =
+              "State: " + (serverStates[serverNumber - 1] ? "ON" : "OFF");
 
             // Log the updated serverStates array to the console
-            console.log('Server States:', serverStates);
-          }
-          else {
+            console.log("Server States:", serverStates);
+          } else {
             serverStates = previousStates;
           }
         }
@@ -199,31 +218,31 @@
 
       async function sendServerStates() {
         const payload = { serverStates };
-        console.log('Sending server states:', JSON.stringify(payload));
+        console.log("Sending server states:", JSON.stringify(payload));
         try {
-            const response = await fetch('/postServerStates', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+          const response = await fetch("/postServerStates", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
 
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Response from server:', result);
+          if (response.ok) {
+            const result = await response.json();
+            console.log("Response from server:", result);
 
-                // Vérifiez le message de retour
-                if (result && result.message === "Data received successfully") {
-                    return true;
-                } else {
-                    console.error('Unexpected response message:', result.message);
-                }
+            // Vérifiez le message de retour
+            if (result && result.message === "Data received successfully") {
+              return true;
             } else {
-                console.error('Error:', response.statusText);
+              console.error("Unexpected response message:", result.message);
             }
+          } else {
+            console.error("Error:", response.statusText);
+          }
         } catch (error) {
-            console.error('An error occurred:', error);
+          console.error("An error occurred:", error);
         }
 
         // Retournez false en cas d'échec
