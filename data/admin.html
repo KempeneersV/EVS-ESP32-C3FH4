@@ -198,6 +198,8 @@
         );
 
         if (confirmation) {
+          // cursor becomes a spinner
+          document.body.style.cursor = "wait";
           previousStates = serverStates;
           serverStates[serverNumber - 1] = 1 - serverStates[serverNumber - 1];
           if (sendServerStates()) {
@@ -213,6 +215,8 @@
           } else {
             serverStates = previousStates;
           }
+          // cursor becomes normal
+          document.body.style.cursor = "default";
         }
       }
 
