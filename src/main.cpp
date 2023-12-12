@@ -47,6 +47,8 @@
 // Led pin for debug on board
 #define ledPin              10 
 
+// For demo
+#define relay_GPIO          1
 // I2C pins
 # define SDA_PIN 0
 # define SCL_PIN 1
@@ -120,17 +122,21 @@ void blinkLED(int numBlinks, int blinkDuration = 1000) {
   }
 }
 
+bool relay_state = false;
 bool writeToPCF8574AN(uint8_t state) {
-  Wire.begin(SDA_PIN, SCL_PIN, I2C_FREQUENCY); 
+  // Wire.begin(SDA_PIN, SCL_PIN, I2C_FREQUENCY); 
   
   // Send data to PCF8574AN
-  Wire.beginTransmission(PCF8574AN_ADDRESS);
-  Wire.write(state);
-  int result = Wire.endTransmission();
-
+  // Wire.beginTransmission(PCF8574AN_ADDRESS);
+  // Wire.write(state);
+  // int result = Wire.endTransmission();
+  int result = 0;
   if (result == 0) {
     // Transmission réussie
     Serial.println("Transmission réussie");
+    relay_state = !relay_state;
+    Serial.println(relay_state);
+    digitalWrite(relay_GPIO, relay_state);
     return true;
   } else {
     // Erreur lors de la transmission
@@ -464,7 +470,7 @@ void setup()
   delay(500);
 
   pinMode(ledPin, OUTPUT);
-
+  pinMode(relay_GPIO, OUTPUT);
   // Starting SPIFFS
   Serial.println("Starting SPIFFS...");
   int startTime = millis();
